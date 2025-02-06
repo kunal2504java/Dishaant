@@ -1,0 +1,122 @@
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { Search, BookOpen, BarChart } from "lucide-react";
+import { Line } from "recharts";
+
+const courses = [
+  { id: 1, title: "Machine Learning Basics", category: "AI & ML" },
+  { id: 2, title: "Full Stack Web Development", category: "Web Development" },
+  { id: 3, title: "Data Science with Python", category: "Data Science" },
+  { id: 4, title: "Cybersecurity Essentials", category: "Cybersecurity" },
+  { id: 5, title: "Cloud Computing Fundamentals", category: "Cloud Computing" },
+];
+
+const userProgress = [
+  { name: "Week 1", progress: 20 },
+  { name: "Week 2", progress: 40 },
+  { name: "Week 3", progress: 60 },
+  { name: "Week 4", progress: 80 },
+  { name: "Week 5", progress: 100 },
+];
+
+function LoginPage({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = () => {
+    if (email && password) {
+      onLogin();
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
+      <motion.h1 className="text-4xl font-bold mb-6 text-blue-600" animate={{ scale: 1.1 }}>
+        Welcome to DISHAANT
+      </motion.h1>
+      <Card className="p-6 shadow-lg w-96">
+        <CardContent className="flex flex-col space-y-4">
+          <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Button onClick={handleLogin} className="bg-blue-600 text-white">Login</Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function Dashboard({ onNavigate }) {
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-8">
+      <motion.h1 className="text-4xl font-bold mb-6 text-blue-600" animate={{ scale: 1.1 }}>
+        Your Dashboard
+      </motion.h1>
+      <motion.div className="w-full max-w-2xl p-6 bg-white shadow-lg rounded-xl" animate={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 50 }}>
+        <h2 className="text-2xl font-semibold text-blue-600 mb-4 flex items-center">
+          <BarChart size={24} className="mr-2" /> Your Progress
+        </h2>
+        <Line data={userProgress} dataKey="progress" stroke="#3b82f6" />
+      </motion.div>
+      <Button onClick={onNavigate} className="mt-6 bg-blue-600 text-white">Go to Course Recommendations</Button>
+    </div>
+  );
+}
+
+function CourseRecommendations() {
+  const [query, setQuery] = useState("");
+  const [filteredCourses, setFilteredCourses] = useState([]);
+
+  const handleSearch = () => {
+    const results = courses.filter((course) =>
+      course.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredCourses(results);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-8">
+      <motion.h1 className="text-4xl font-bold mb-6 text-blue-600" animate={{ scale: 1.1 }}>
+        DISHAANT - AI-Powered Course Recommendations
+      </motion.h1>
+      
+      <div className="flex space-x-4 mb-6 w-full max-w-lg">
+        <Input
+          placeholder="Search for courses..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="flex-1"
+        />
+        <Button onClick={handleSearch} className="bg-blue-600 text-white flex items-center gap-2">
+          <Search size={18} /> Search
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredCourses.length > 0 ? (
+          filteredCourses.map((course) => (
+            <Card key={course.id} className="p-4 shadow-lg hover:shadow-2xl transition-all">
+              <CardContent className="flex flex-col items-center text-center">
+                <BookOpen className="text-blue-600 mb-2" size={32} />
+                <h2 className="text-xl font-semibold">{course.title}</h2>
+                <p className="text-gray-500">{course.category}</p>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p className="text-gray-500">No courses found. Try another search.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [page, setPage] = useState("login");
+
+  if (page === "login") return <LoginPage onLogin={() => setPage("dashboard")} />;
+  if (page === "dashboard") return <Dashboard onNavigate={() => setPage("courses")} />;
+  return <CourseRecommendations />;
+}
